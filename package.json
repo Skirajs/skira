@@ -1,0 +1,37 @@
+{
+  "name": "skira",
+  "version": "0.1.0",
+  "description": "Development environment for creating skira sites.",
+  "main": "lib/skira",
+  "bin": {
+    "modweb": "bin/skira.js"
+  },
+  "dependencies": {
+    "browserify": "^13.0.0",
+    "jade": "^1.11.0",
+    "js-yaml": "^3.5.3",
+    "less-builder": "^1.0.0",
+    "parse-function": "^2.3.0",
+    "path-to-regexp": "^1.2.1",
+    "serialize-javascript": "^1.1.2",
+    "skira-core": "^0.1.0",
+    "skira-server": "^0.1.0",
+    "tree-loader": "^2.0.0"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/skira-project/skira.git"
+  },
+  "keywords": [
+    "skira"
+  ],
+  "author": "Skira project",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/skira-project/skira/issues"
+  },
+  "homepage": "https://github.com/skira-project/skira#readme"
+}
