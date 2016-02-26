@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.3.3",
+  "version": "0.3.4",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
@@ -16,6 +16,7 @@
     "browserify": "^13.0.0",
     "compression": "^1.6.1",
     "connect": "^3.4.1",
+    "cookies": "^0.5.1",
     "cpr": "^1.0.0",
     "debug": "^2.2.0",
     "eventemitter3-collector": "^1.1.1",

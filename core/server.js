@@ -1,6 +1,7 @@
 const bodyParser = require("body-parser");
 const compression = require("compression");
 const connect = require("connect");
+const Cookies = require("cookies");
 const debug = require("debug")("skira:server");
 const fs = require("fs");
 const http = require("http");
@@ -35,6 +36,8 @@ Server.prototype.setupConnect = function() {
 	this.app.use(bodyParser.urlencoded({
 		extended: true
 	}));
+
+	this.app.use(Cookies.connect());
 
 	this.app.use((req, res, next) => this.handle(null, req, res, next));
 
