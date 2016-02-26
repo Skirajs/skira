@@ -63,6 +63,7 @@ Server.prototype.setupConnect = function() {
 };
 
 Server.prototype.addSourceMap = function(part, req, res, next) {
+	// TODO: lookup mime type
 	var file = fs.createReadStream(this.site.project.output[part]);
 	file.pipe(res, { end: false });
 	file.on("end", function() {
