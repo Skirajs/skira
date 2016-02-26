@@ -7,7 +7,7 @@ const pathTool = require("path");
 const Promise = require("bluebird");
 
 const cpr = Promise.promisify(require("cpr"));
-const portfinder = Promise.promisifyAll(require("portfinder"));
+const portscanner = Promise.promisifyAll(require("portscanner"));
 
 const ERR_COLOR = "\u001b[31;1m";
 const PROJECT_FILE = "project.skira";
@@ -61,7 +61,7 @@ Promise.coroutine(function *() {
 		debug("Searching for available port...");
 
 		try {
-			port = yield portfinder.getPortAsync();
+			port = yield portscanner.findAPortNotInUseAsync(8000, 8999, "127.0.0.1");
 		} catch (err) {
 			debug(ERR_COLOR + "Could not find open port: %s", err.message || err);
 			process.exit(2);

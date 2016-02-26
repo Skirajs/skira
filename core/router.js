@@ -1,7 +1,4 @@
-function RouteObject(page, params) {
-	this.page = page;
-	this.params = params || {};
-}
+const State = require("./state");
 
 function Router(site) {
 	this.site = site;
@@ -21,23 +18,31 @@ Router.prototype.mapJumpRoutes = function() {
 	}
 };
 
-Router.prototype.resolve = function(path) {
+Router.prototype.resolve = function(path, localePrefix) {
 	var jumpRoute = this.jumps[path];
 
 	if (jumpRoute) {
-		return new RouteObject(jumpRoute);
+		var state = new State(this.site, jumpRoute);
+		state.setLocale(localePrefix);
+		return state;
+	}
+
+	var locale = path.slice(1).split(/\//)[0];
+
+	if (this.site.locales[locale] && !localePrefix) {
+		return this.resolve(path.slice(locale.length + 1), locale);
 	}
 
 	for (var i in this.site.pages) {
 		var page = this.site.pages[i];
 
 		// skip unbound / floating pages
-		if (!page.href && !page.routes) {
+		if (!page.href && !page._routes) {
 			continue;
 		}
 
 		if (path == page.href) {
-			return new RouteObject(page, params);
+			return new State(this.site, page, params);
 		}
 
 		// nothing left to try here
@@ -66,7 +71,7 @@ Router.prototype.resolve = function(path) {
 			}
 
 			// return a new object
-			return new RouteObject(page, params);
+			return new State(this.site, page, params);
 		}
 	}
 };

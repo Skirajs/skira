@@ -2,6 +2,7 @@ const bodyParser = require("body-parser");
 const compression = require("compression");
 const connect = require("connect");
 const debug = require("debug")("skira:server");
+const fs = require("fs");
 const http = require("http");
 const Processor = require("./processor");
 const Router = require("./router");
@@ -19,10 +20,6 @@ function Server(site) {
 		data.headers["Content-Type"] = "text/html; charset=utf-8";
 		data.headers["Connection"] = "close";
 		data.headers["Server"] = "Skira";
-
-		if (data.site.project.default && data.site.project.default.locale) {
-			data.locale = data.site.locales[data.site.project.default.locale];
-		}
 	});
 
 	this.setupConnect();
@@ -39,39 +36,60 @@ Server.prototype.setupConnect = function() {
 		extended: true
 	}));
 
-	this.app.use(this.handle.bind(this, null));
+	this.app.use((req, res, next) => this.handle(null, req, res, next));
 
 	if (process.env.DEBUG) {
-		this.app.use(this.fileHandler("debug"));
+		var prefix = "public/"; // TODO: get from project
+
+		for (var i in this.site.project.output) {
+			var path = new String(this.site.project.output[i]);
+
+			if (!path.startsWith(prefix)) {
+				continue;
+			}
+
+			var m = "/" + path.slice(prefix.length);
+			this.app.use(m, this.addSourceMap.bind(this, i));
+		}
 	}
 
-	this.app.use(this.fileHandler(this.site.project.files));
+	this.app.use(this.fileHandler(process.env.DEBUG));
 
-	this.app.use(this.handle.bind(this, 404));
-	this.app.use(this.handle.bind(this));
+	this.app.use((req, res, next) => this.handle(404, req, res, next));
+	this.app.use((err, req, res, next) => this.handle(err, req, res, next));
 };
 
-Server.prototype.fileHandler = function(opts) {
-	var files = {};
+Server.prototype.addSourceMap = function(part, req, res, next) {
+	var file = fs.createReadStream(this.site.project.output[part]);
+	file.pipe(res, { end: false });
+	file.on("end", function() {
+		fs.readFile("debug/" + part + ".map", function(err, d) {
+			if (err) return next(err);
+			res.end("/*# sourceMappingURL=data:application/json;base64," + d.toString("base64") + "*/");
+		});
+	});
+};
 
-	if (typeof opts == "string") {
-		opts = { path: opts };
+Server.prototype.fileHandler = function(debugMode) {
+	var opts = {};
+
+	opts.passthrough = true; // for connect to work
+	opts.gzip = false; // due to compress middleware
+
+	opts.path = this.site.project.files.path;
+	opts.index = this.site.project.files.index;
+	opts.dot = this.site.project.files.dot;
+	opts.cors = this.site.project.files.cors;
+
+	if (this.site.project.files.cache) {
+		opts.cache = this.site.project.files.cache;
 	}
 
-	// TODO: get caching preferences from project
-	// TODO: allow dot, disallow cors in project
-	files.path = "public";
-	files.passthrough = true; // for connect to work
-	files.gzip = false; // due to compress middleware
-	files.index = "index.html";
-	files.dot = false;
-	files.cors = true;
-
-	for (var i in opts) {
-		files[i] = opts[i];
+	if (debugMode) {
+		opts.cache = false;
 	}
 
-	return st(files);
+	return st(opts);
 };
 
 Server.prototype.handle = async function(err, req, res, next) {
@@ -93,6 +111,9 @@ Server.prototype.handle = async function(err, req, res, next) {
 		next(err);
 		return;
 	}
+
+	page.status = (err ? err.httpCode : 0) || 200;
+	page.request = req;
 
 	try {
 		var output = await this.processor.render(page, req);
