@@ -1,13 +1,16 @@
+const Promise = require("bluebird");
+
 const bodyParser = require("body-parser");
 const compression = require("compression");
 const connect = require("connect");
 const Cookies = require("cookies");
 const debug = require("debug")("skira:server");
-const fs = require("fs");
+const fs = Promise.promisifyAll(require("fs"));
 const http = require("http");
 const Processor = require("./processor");
 const Router = require("./router");
 const st = require("st");
+const through2 = require("through2");
 const Url = require("url");
 
 function Server(site) {
@@ -29,9 +32,7 @@ function Server(site) {
 Server.prototype.setupConnect = function() {
 	this.app = connect();
 
-	if (!process.env.DEBUG) {
-		this.app.use(compression());
-	}
+	this.app.use(compression());
 
 	this.app.use(bodyParser.urlencoded({
 		extended: true
@@ -42,7 +43,7 @@ Server.prototype.setupConnect = function() {
 	this.app.use((req, res, next) => this.handle(null, req, res, next));
 
 	if (process.env.DEBUG) {
-		var prefix = "public/"; // TODO: get from project
+		var prefix = (this.site.project.files.path + "/").replace(/\/+/g, "/");
 
 		for (var i in this.site.project.output) {
 			var path = new String(this.site.project.output[i]);
@@ -63,30 +64,29 @@ Server.prototype.setupConnect = function() {
 };
 
 Server.prototype.addSourceMap = function(part, req, res, next) {
-	// TODO: lookup mime type
-	var file = fs.createReadStream(this.site.project.output[part]);
-	file.pipe(res, { end: false });
-	file.on("end", function() {
-		fs.readFile("debug/" + part + ".map", function(err, d) {
-			if (err) return next(err);
-			res.end("/*# sourceMappingURL=data:application/json;base64," + d.toString("base64") + "*/");
-		});
+	var prefix = "# sourceMappingURL=data:application/json;base64,";
+	var promisedMap = fs.readFileAsync("build/" + part + ".map");
+
+	res.filter = through2(function write(data, enc, cb) {
+		cb(null, data);
+	}, function end(cb) {
+		promisedMap.then((d) => {
+			var c = prefix + d.toString("base64");
+			this.push(part == "styles" ? "/*" + c + " */\n" : "//" + c);
+			cb();
+		}).catch(next);
 	});
+
+	next();
 };
 
 Server.prototype.fileHandler = function(debugMode) {
 	var opts = {};
 
 	opts.passthrough = true; // for connect to work
-	opts.gzip = false; // due to compress middleware
 
-	opts.path = this.site.project.files.path;
-	opts.index = this.site.project.files.index;
-	opts.dot = this.site.project.files.dot;
-	opts.cors = this.site.project.files.cors;
-
-	if (this.site.project.files.cache) {
-		opts.cache = this.site.project.files.cache;
+	for (var i in this.site.project.files) {
+		opts[i] = this.site.project.files[i];
 	}
 
 	if (debugMode) {
@@ -148,6 +148,4 @@ module.exports = function(site) {
 	server.start(process.env.PORT, function(s) {
 		debug("Listening on port %d.", s.address().port);
 	});
-
-	return site;
 };
