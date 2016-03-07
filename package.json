@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.4.0",
+  "version": "0.4.1",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
@@ -19,16 +19,20 @@
     "cookies": "^0.5.1",
     "cpr": "^1.0.0",
     "debug": "^2.2.0",
+    "envify": "^3.4.0",
     "eventemitter3-collector": "^1.1.1",
     "jade": "^1.11.0",
     "js-yaml": "^3.5.3",
     "less-builder": "^1.0.0",
     "merge": "^1.2.0",
     "mkdirp": "^0.5.1",
+    "mold-source-map": "^0.4.0",
     "path-to-regexp": "^1.2.1",
     "portscanner": "^1.0.0",
     "serialize-javascript": "^1.1.2",
+    "source-map-support": "^0.4.0",
     "st": "^1.1.0",
+    "through2": "^2.0.1",
     "tree-loader": "^2.0.0",
     "watchify": "^3.7.0"
   },
