@@ -13,7 +13,7 @@ module.exports = function(site) {
 		for (var i = 0; i < document.links.length; i++) {
 			var link = document.links[i];
 
-			// TODO: check if not absolute url
+			// TODO: check if not absolute url OR has no href
 
 			var target = urlTool.parse(link.href);
 

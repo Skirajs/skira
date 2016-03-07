@@ -16,27 +16,10 @@ Processor.prototype.runEvent = function(eventName, data) {
 
 Processor.prototype.render = async function(data) {
 	await this.runEvent("prepare", data);
-
-	var view = this.site.views[data.page.view];
-
-	if (!view) {
-		throw new Error("Could not load view: " + data.page.view);
-	}
-
-	data.content = view(data);
-
 	await this.runEvent("render", data);
 
-	var parent = data.page.parent;
-
-	if (parent) {
-		data.page = this.site.pages[parent];
-		return this.render(data);
-	}
-
-	if (data.page.master) {
-		var master = this.site.views[data.page.master];
-		data.content = master(data);
+	for (var view of data.page._views) {
+		data.content = view(data);
 	}
 
 	await this.runEvent("output", data);

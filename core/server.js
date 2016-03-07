@@ -29,6 +29,37 @@ function Server(site) {
 	this.setupConnect();
 }
 
+function debugServer() {
+	var serve = st({
+		passthrough: true,
+		path: "debug",
+		cache: false,
+		gzip: false,
+		cors: false
+	});
+
+	var o = this.site.project.output;
+	var reverseMapping = Object.keys(o).map(i => o[i]);
+
+	return (req, res, next) => {
+		var parsed = Url.parse(req.url);
+		var part = reverseMapping[parsed.pathname];
+
+		if (typeof part == "undefined") {
+			next();
+			return;
+		}
+
+		var originalUrl = req.url;
+		req.url = "/" + part + (part == "styles" ? ".css" : ".js"); // TODO: lookup full name from object
+
+		serve(req, res, () => {
+			req.url = originalUrl;
+			next();
+		});
+	};
+}
+
 Server.prototype.setupConnect = function() {
 	this.app = connect();
 
@@ -43,44 +74,16 @@ Server.prototype.setupConnect = function() {
 	this.app.use((req, res, next) => this.handle(null, req, res, next));
 
 	if (process.env.DEBUG) {
-		var prefix = (this.site.project.files.path + "/").replace(/\/+/g, "/");
-
-		for (var i in this.site.project.output) {
-			var path = new String(this.site.project.output[i]);
-
-			if (!path.startsWith(prefix)) {
-				continue;
-			}
-
-			var m = "/" + path.slice(prefix.length);
-			this.app.use(m, this.addSourceMap.bind(this, i));
-		}
+		this.app.use(debugServer.call(this));
 	}
 
-	this.app.use(this.fileHandler(process.env.DEBUG));
+	this.app.use(this.fileHandler());
 
 	this.app.use((req, res, next) => this.handle(404, req, res, next));
 	this.app.use((err, req, res, next) => this.handle(err, req, res, next));
 };
 
-Server.prototype.addSourceMap = function(part, req, res, next) {
-	var prefix = "# sourceMappingURL=data:application/json;base64,";
-	var promisedMap = fs.readFileAsync("build/" + part + ".map");
-
-	res.filter = through2(function write(data, enc, cb) {
-		cb(null, data);
-	}, function end(cb) {
-		promisedMap.then((d) => {
-			var c = prefix + d.toString("base64");
-			this.push(part == "styles" ? "/*" + c + " */\n" : "//" + c);
-			cb();
-		}).catch(next);
-	});
-
-	next();
-};
-
-Server.prototype.fileHandler = function(debugMode) {
+Server.prototype.fileHandler = function() {
 	var opts = {};
 
 	opts.passthrough = true; // for connect to work
@@ -89,7 +92,7 @@ Server.prototype.fileHandler = function(debugMode) {
 		opts[i] = this.site.project.files[i];
 	}
 
-	if (debugMode) {
+	if (process.env.DEBUG) {
 		opts.cache = false;
 	}
 
@@ -122,7 +125,9 @@ Server.prototype.handle = async function(err, req, res, next) {
 	try {
 		var output = await this.processor.render(page, req);
 		res.writeHead(output.status, output.headers);
-		res.end(output.content);
+
+		var c = output.content;
+		res.end(typeof c != "string" ? JSON.stringify(c) : c);
 	} catch (err) {
 		next(err);
 	}
