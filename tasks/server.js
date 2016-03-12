@@ -84,6 +84,7 @@ exports.run = Promise.coroutine(function* run() {
 	}
 
 	delete this.address
+
 	this.main = this.spare
 	this.spare = setupWorker.call(this)
 
