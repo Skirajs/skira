@@ -1,111 +1,111 @@
-const diff = require("diffhtml");
-const Router = require("./router");
-const Processor = require("./processor");
-const urlTool = require("url");
+const diff = require("diffhtml")
+const Router = require("./router")
+const Processor = require("./processor")
+const urlTool = require("url")
 
-module.exports = function(site) {
-	var APP_MODE = site.project.app === true;
+module.exports = function setupSkira(site) {
+	var APP_MODE = site.project.app === true
 
-	var router = new Router(site);
-	var processor = new Processor(site);
+	var router = new Router(site)
+	var processor = new Processor(site)
 
 	function patchLinks() {
 		for (var i = 0; i < document.links.length; i++) {
-			var link = document.links[i];
+			var link = document.links[i]
 
 			// TODO: check if not absolute url OR has no href
 
-			var target = urlTool.parse(link.href);
+			var target = urlTool.parse(link.href)
 
 			// check if not already patched
 			if (target.hash && target.hash.slice(0, 2) == "#!") {
-				return;
+				return
 			}
 
 			if (target.protocol != location.protocol) {
-				return;
+				return
 			}
 
 			if (target.hostname != location.hostname) {
-				return;
+				return
 			}
 
 			if (target.port != location.port) {
-				return;
+				return
 			}
 
-			link.href = "#!" + target.path;
+			link.href = "#!" + target.path
 		}
 	}
 
 	async function loadPage(pathname) {
-		var page = router.resolve(pathname);
+		var page = router.resolve(pathname)
 
 		if (!page) {
-			console.log("No route");
+			console.log("No route")
 			// TODO: ajax
-			return;
+			return
 		}
 
-		page.request = { url: pathname };
+		page.request = { url: pathname }
 
-		var output = await processor.render(page);
+		var output = await processor.render(page)
 
-		scrollTo(0, 0);
+		scrollTo(0, 0)
 
 		if (document.activeElement) {
-			document.activeElement.blur();
+			document.activeElement.blur()
 		}
 
 		// TODO: keep track of js files we load and avoid duplicates
 		// TODO: fire load event / DOMContentReady?
 
-		diff.outerHTML(document.documentElement, output.content);
+		diff.outerHTML(document.documentElement, output.content)
 
-		patchLinks();
+		patchLinks()
 	}
 
-	window.addEventListener("hashchange", function() {
-		var path = window.location.hash.slice(2);
+	window.addEventListener("hashchange", () => {
+		var path = window.location.hash.slice(2)
 
 		if (APP_MODE) {
-			loadPage(path);
+			loadPage(path)
 		} else {
-			history.replaceState({}, "", path);
+			history.replaceState({}, "", path)
 		}
-	});
+	})
 
-	window.addEventListener("popstate", function(e) {
+	window.addEventListener("popstate", (e) => {
 		if (APP_MODE) {
-			return;
+			return
 		}
 
-		setTimeout(function() {
-			loadPage(location.pathname + location.search);
-		}, 0);
-	});
+		setTimeout(() => {
+			loadPage(location.pathname + location.search)
+		}, 0)
+	})
 
 	if (APP_MODE) {
-		var path = window.location.hash.slice(2) || "/";
-		loadPage(path);
+		var path = window.location.hash.slice(2) || "/"
+		loadPage(path)
 	} else {
-		patchLinks();
+		patchLinks()
 	}
 
 	// TODO: bind this to a proper event
-	setInterval(function() {
-		var liElements = document.getElementsByTagName("body");
+	setInterval(() => {
+		var liElements = document.getElementsByTagName("body")
 
 		for (var i = 1; i < liElements.length; i++) {
-			liElements[i].parentNode.removeChild(liElements[i]);
+			liElements[i].parentNode.removeChild(liElements[i])
 		}
-	}, 800);
+	}, 800)
 
 	if (APP_MODE) {
 		// TODO: event of some sort, so we can implement a loading screen
 		// TODO: or enable a login button
-		console.log("App done loading");
+		console.log("App done loading")
 	} else {
-		console.log("Site accelerator online");
+		console.log("Site accelerator online")
 	}
-};
+}
