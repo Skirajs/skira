@@ -16,6 +16,9 @@ function setupWorker() {
 		silent: true,
 	})
 
+	handleMessages("log", worker.stdout)
+	handleMessages("error", worker.stderr)
+
 	worker.on("message", (m) => {
 		if (m.address) {
 			this.address = m.address
@@ -87,9 +90,6 @@ exports.run = Promise.coroutine(function* run() {
 
 	this.main = this.spare
 	this.spare = setupWorker.call(this)
-
-	handleMessages("log", this.main.stdout)
-	handleMessages("error", this.main.stderr)
 
 	var site = fs.createReadStream(this.input)
 	var stdin = site.pipe(this.main.stdin)

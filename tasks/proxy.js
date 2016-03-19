@@ -157,7 +157,7 @@ exports.run = function run() {
 				protocol: "http",
 				hostname: this.proxy.address().address,
 				port: this.proxy.address().port,
-				pathname: "/skira",
+				pathname: "/",
 			})
 
 			console.error("Available at", href)
