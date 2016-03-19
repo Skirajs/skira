@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.5.5",
+  "version": "0.5.6",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
@@ -24,7 +24,6 @@
     "openurl": "^1.1.1",
     "path-to-regexp": "^1.2.1",
     "portscanner": "^1.0.0",
-    "resolve": "^1.1.7",
     "serialize-javascript": "^1.1.2",
     "st": "^1.1.0",
     "through2": "^2.0.1",

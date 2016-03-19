@@ -87,15 +87,17 @@ exports.run = Promise.coroutine(function* run() {
 	}
 
 	delete this.address
-
 	this.main = this.spare
 	this.spare = setupWorker.call(this)
 
-	var site = fs.createReadStream(this.input)
-	var stdin = site.pipe(this.main.stdin)
+	this.main.send({ start: true })
 
 	yield new Promise((resolve, reject) => {
-		stdin.on("finish", resolve)
+		this.main.once("message", (m) => {
+			if (m.address) {
+				resolve()
+			}
+		})
 	})
 
 	this.main.on("exit", () => {
