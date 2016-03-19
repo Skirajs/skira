@@ -101,6 +101,7 @@ exports.run = Promise.coroutine(function* run() {
 	})
 
 	this.main.on("exit", () => {
+		this.error = new Error("Server crashed")
 		delete this.main.pid
 	})
 })
