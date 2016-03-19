@@ -54,7 +54,7 @@ Router.prototype.resolve = function resolve(path, localePrefix) {
 			var route = page._routes[j]
 
 			// match the path against the regular expression
-			var match = route.exec(path)
+			var match = route.regex.exec(path)
 
 			// skip route if there's no match (null)
 			if (!match) {
