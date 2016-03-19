@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.5.3",
+  "version": "0.5.4",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
