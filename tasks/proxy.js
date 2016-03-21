@@ -1,8 +1,6 @@
 const Promise = require("bluebird")
 
 const http = require("http")
-const moment = require("moment")
-const openurl = require("openurl")
 const st = require("st")
 const url = require("url")
 
@@ -49,36 +47,6 @@ function proxyRequest(req, res) {
  * @param {object} res - Outgoing response.
  */
 const handler = Promise.coroutine(function* handler(req, res) {
-	if (req.url == "/skira") {
-		res.writeHead(200, {
-			"Content-Type": "text/plain; charset=utf-8",
-			Connection: "Close",
-			Refresh: "1",
-		})
-
-		var info = []
-
-		info.push(`Skira ${this.skira.VERSION}`)
-		info.push("")
-
-		for (var taskName in this.skira.tasks) {
-			var task = this.skira.tasks[taskName]
-
-			info.push(`----- ${taskName} -----`)
-			info.push(`enabled: ${task.enabled}`)
-			info.push(`busy: ${task.busy}`)
-			info.push(`queued: ${task.queued}`)
-			info.push(`error: ${task.error}`)
-			info.push(`last run: ${moment(task.lastrun).format()}`)
-			info.push(`last update: ${moment(task.lastupdate).format()}`)
-			info.push("")
-		}
-
-		res.end(info.join("\r\n"))
-
-		return
-	}
-
 	// intercept if its an output we can serve from our build directory
 	// we specially don't parse the URL so you can use a query string to bypass the proxy
 	if (this.outputs[req.url]) {
@@ -150,23 +118,20 @@ exports.init = function init() {
 /**
  * Starts listening on the main port for connections.
  */
-exports.run = function run() {
-	return new Promise((resolve, reject) => {
-		this.proxy.listen(this.port, "127.0.0.1", () => {
-			var href = url.format({
-				protocol: "http",
-				hostname: this.proxy.address().address,
-				port: this.proxy.address().port,
-				pathname: "/",
-			})
-
-			console.error("Available at", href)
-			openurl.open(href)
-
-			resolve()
-		})
+exports.run = Promise.coroutine(function* run() {
+	yield new Promise((resolve, reject) => {
+		this.proxy.listen(this.port, "127.0.0.1", resolve)
 	})
-}
+
+	this.href = url.format({
+		protocol: "http",
+		hostname: this.proxy.address().address,
+		port: this.proxy.address().port,
+		pathname: "/",
+	})
+
+	console.error("Available at", this.href)
+})
 
 /**
  * Closes the network socket.

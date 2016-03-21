@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.5.7",
+  "version": "0.5.8",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
@@ -20,15 +20,14 @@
     "js-yaml": "^3.5.3",
     "less": "^2.6.1",
     "merge": "^1.2.0",
-    "moment": "^2.12.0",
-    "openurl": "^1.1.1",
     "path-to-regexp": "^1.2.1",
     "portscanner": "^1.0.0",
     "serialize-javascript": "^1.1.2",
     "st": "^1.1.0",
     "through2": "^2.0.1",
     "tree-loader": "^2.0.0",
-    "watchify": "^3.7.0"
+    "watchify": "^3.7.0",
+    "serialize-error": "^1.1.0"
   },
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"

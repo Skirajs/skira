@@ -15,8 +15,6 @@ const TreeLoader = require("tree-loader")
 function setupLoader(name, format) {
 	this.loaders[name] = new TreeLoader(name, format)
 
-	this.loaders[name].on("error", err => this.error = err)
-
 	return new Promise((resolve, reject) => {
 		this.loaders[name].once("change", resolve)
 	})
@@ -52,8 +50,18 @@ exports.init = Promise.coroutine(function* init() {
  * Collects all (parsed) data, compiles it to JS and writes it to disk.
  */
 exports.run = Promise.coroutine(function* run() {
-	if (this.error) {
-		throw this.error
+	for (var loaderName in this.loaders) {
+		var errorObj = this.loaders[loaderName].error
+
+		var errorArr = Object.keys(errorObj)
+			.map(name => errorObj[name])
+			.filter(Boolean)
+
+		this.error = this.error.concat(errorArr)
+	}
+
+	if (this.error.length) {
+		return
 	}
 
 	var site = {

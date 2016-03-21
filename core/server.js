@@ -111,10 +111,4 @@ Server.prototype.stop = function stop(callback) {
 	this.httpServer.close(callback)
 }
 
-module.exports = function setupServer(site) {
-	var server = new Server(site)
-
-	server.start(process.env.PORT, (s) => {
-		process.send({ address: s.address() })
-	})
-}
+module.exports = Server

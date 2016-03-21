@@ -16,12 +16,36 @@ function setupWorker() {
 		silent: true,
 	})
 
+	worker.on("error", (err) => {
+		this.error.push(err)
+		this.busy = false
+	})
+
+	worker.on("exit", (code, signal) => {
+		if (!worker.killed) {
+			var msg = `Server process exited with exit code ${code}`
+
+			if (signal) {
+				msg += ` (${signal})`
+			}
+
+			this.error.push(new Error(msg))
+		}
+
+		this.busy = false
+		delete this.address
+	})
+
 	handleMessages("log", worker.stdout)
 	handleMessages("error", worker.stderr)
 
 	worker.on("message", (m) => {
 		if (m.address) {
 			this.address = m.address
+		}
+
+		if (m.error) {
+			this.error.push(m.error)
 		}
 	})
 
@@ -83,6 +107,7 @@ exports.init = function init() {
  */
 exports.run = Promise.coroutine(function* run() {
 	if (this.main && this.main.pid) {
+		this.main.killed = true
 		this.main.kill()
 	}
 
@@ -98,11 +123,8 @@ exports.run = Promise.coroutine(function* run() {
 				resolve()
 			}
 		})
-	})
-
-	this.main.on("exit", () => {
-		this.error = new Error("Server crashed")
-		delete this.main.pid
+	}).timeout(10e3).catch(Promise.TimeoutError, (e) => {
+		throw new Error("Server did not pass address within 10 seconds")
 	})
 })
 

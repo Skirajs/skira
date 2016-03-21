@@ -16,6 +16,7 @@ Processor.prototype.runEvent = function runEvent(eventName, data) {
 
 Processor.prototype.render = Promise.coroutine(function* render(data) {
 	yield this.runEvent("prepare", data)
+
 	yield this.runEvent("render", data)
 
 	for (var view of data.page._views) {

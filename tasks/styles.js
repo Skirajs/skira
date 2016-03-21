@@ -40,16 +40,40 @@ exports.run = Promise.coroutine(function* run() {
 	// read the less code
 	var code = yield fs.readFileAsync(this.input, "utf8")
 
-	// render less to css
-	var output = yield less.render(code, {
-		// specify the filename for imports and errors
-		filename: this.input,
-		// include the sourcemap for debugging
-		sourceMap: {
-			// do not put it in a separate file
-			sourceMapFileInline: true,
-		},
-	})
+	try {
+		// render less to css
+		var output = yield less.render(code, {
+			// specify the filename for imports and errors
+			filename: this.input,
+			// include the sourcemap for debugging
+			sourceMap: {
+				// do not put it in a separate file
+				sourceMapFileInline: true,
+			},
+		})
+	} catch (err) {
+		err.extract.splice(2, 0, " ".repeat(err.column) + "^")
+
+		var extract = err.extract
+			// change undefined lines to empty ones
+			.map((line) => line || "")
+			// indent, style and mark every line
+			.map((line, index) => (
+				// indent every line and add an arrow on the guilty line
+				"  " + (index == 1 ? ">" : " ") + " " +
+				// prefix every line with a pipe character except for the cursor
+				(index != 2 ? "|" : " ") + " " + line
+			))
+			// add an additional empty line
+			.concat("")
+			// create a string
+			.join("\n")
+
+		throw new Error(
+			`Parsing file ${err.filename}: ${err.message}` +
+			`(${err.line}:${err.column})\n${extract}`
+		)
+	}
 
 	// write css output to file
 	yield fs.writeFileAsync(this.output, output.css)
