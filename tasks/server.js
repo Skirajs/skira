@@ -1,5 +1,6 @@
 const Promise = require("bluebird")
 
+const chokidar = require("chokidar")
 const fork = require("child_process").fork
 const fs = require("fs")
 const moment = require("moment")
@@ -99,6 +100,15 @@ exports.init = function init() {
 	}
 
 	this.skira.on("update", this.updateHook)
+
+	this.watcher = chokidar.watch("node_modules", {
+		ignoreInitial: true,
+	})
+
+	this.watcher.on("all", (event, path) => {
+		this.enabled = true
+		this.run()
+	})
 }
 
 /**
@@ -132,16 +142,23 @@ exports.run = Promise.coroutine(function* run() {
  * Shuts down both the main and spare worker.
  */
 exports.stop = function stop() {
-	if (this.runBound) {
+	if (this.updateHook) {
 		this.skira.removeListener("update", this.updateHook)
-		delete this.runBound
+		delete this.updateHook
 	}
 
 	if (this.spare) {
 		this.spare.kill()
+		delete this.spare
 	}
 
 	if (this.main) {
 		this.main.kill()
+		delete this.main
+	}
+
+	if (this.watcher) {
+		this.watcher.close()
+		delete this.watcher
 	}
 }
