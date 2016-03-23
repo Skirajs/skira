@@ -1,9 +1,9 @@
 const Promise = require("bluebird")
 
 const chokidar = require("chokidar")
+const debug = require("debug")("skira:server")
 const fork = require("child_process").fork
 const fs = require("fs")
-const moment = require("moment")
 
 /**
  * Forks the debug worker and broadcasts the address when it comes online.
@@ -60,20 +60,9 @@ function setupWorker() {
  * @param {stream.Readable} std - Stream with console output
  */
 function handleMessages(name, std) {
-	std.setEncoding("utf8")
-
-	var fixedPrefix = `[server:${name}] `
-
 	std.on("data", (data) => {
-		var time = moment().format()
-		var localPrefix = `${time}: `
-
-		var lines = data.trim().split(/\r\n|\r|\n/g)
-
-		lines.forEach((line, offset) => {
-			var p = offset == 0 ? localPrefix : " ".repeat(localPrefix.length)
-			console.log(fixedPrefix + p + line)
-		})
+		var lines = data.toString().trim().split(/\r\n|\r|\n/g)
+		lines.forEach(line => debug(line))
 	})
 }
 
