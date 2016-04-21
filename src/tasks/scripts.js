@@ -19,7 +19,7 @@ ScriptsTask.prototype.BABEL_RC = {
 }
 
 ScriptsTask.prototype.triggers = {
-	watch: "scripts/**/*.js",
+	watch: "scripts",
 }
 
 ScriptsTask.prototype.prepare = function prepare() {
