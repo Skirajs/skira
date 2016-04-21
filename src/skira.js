@@ -107,7 +107,7 @@ Skira.prototype.execTask = async function execTask(taskName) {
 		debug("Error while checking filter of %s:\n", taskName, err.stack || err)
 	}
 
-	if (task.busy) {
+	if (task.busy && !task.triggers.restart) {
 		debug("Task %s is already executing. Queueing up.", taskName)
 		return new Promise((...args) => task.queue.push(args))
 	}
