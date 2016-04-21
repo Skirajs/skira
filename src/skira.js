@@ -154,16 +154,16 @@ Skira.prototype.execTask = async function execTask(taskName) {
 				await this.execTask(taskName)
 
 				debug("Successfully executed queue task %s.", taskName)
-				callbacks.forEach(args => setImmediate(args[0]))
+				callbacks.forEach((args) => setImmediate(args[0]))
 			} catch (err) {
 				debug("Error while executing queue task %s.", taskName)
-				callbacks.forEach(args => setImmediate(() => args[1](err)))
+				callbacks.forEach((args) => setImmediate(() => args[1](err)))
 			}
 		})
 	}
 
 	if (this.triggers.restart && this.triggers.restart.true.indexOf(taskName) != -1) {
-		await new Promise(resolve => setTimeout(resolve, 100))
+		await new Promise((resolve) => setTimeout(resolve, 100))
 		return this.execTask(taskName)
 	}
 
@@ -190,9 +190,10 @@ Skira.prototype.autoStart = async function startAuto() {
 
 Skira.prototype.deployWatcher = function deployWatcher() {
 	let args = Object.keys(this.triggers.watch)
+	let watcher
 
 	const watchProc = async (args) => {
-		let watcher = fork(require.resolve("./watch"), args)
+		watcher = fork(require.resolve("./watch"), args)
 
 		watcher.on("message", (m) => {
 			if (m.update) {
@@ -201,7 +202,7 @@ Skira.prototype.deployWatcher = function deployWatcher() {
 		})
 
 		await new Promise((resolve, reject) => {
-			watcher.on("exit", errorCode => {
+			watcher.on("exit", (errorCode) => {
 				if (errorCode) {
 					reject(new Error("Exited with error code " + errorCode))
 				} else {
@@ -212,12 +213,14 @@ Skira.prototype.deployWatcher = function deployWatcher() {
 	}
 
 	setImmediate(async () => {
-		while (true) {
+		let encounteredError = false
+
+		while (!encounteredError) {
 			try {
 				await watchProc(args)
-				break
 			} catch (err) {
-				await new Promise(resolve => setTimeout(resolve, 100))
+				encounteredError = true
+				await new Promise((resolve) => setTimeout(resolve, 100))
 			}
 		}
 	})

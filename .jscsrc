@@ -1,6 +1,6 @@
 {
-	"esnext": true,
 	"disallowVar": true,
+	"requireParenthesesAroundArrowParam": true,
 	"disallowSpacesInNamedFunctionExpression": {
 		"beforeOpeningRoundBrace": true
 	},
@@ -78,7 +78,6 @@
 	"requirePaddingNewLinesAfterBlocks": true,
 	"requireSemicolons": false,
 	"safeContextKeyword": false,
-	"validateLineBreaks": "CRLF",
 	"validateQuoteMarks": {
 		"mark": "\"",
 		"escape": true,

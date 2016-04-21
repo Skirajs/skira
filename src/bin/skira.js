@@ -1,4 +1,12 @@
 #!/usr/bin/env node
+/*eslint no-console: "off"*/
+async function newAsync(fn, ...args) {
+	let base = Object.create(fn.prototype || fn)
+	let out = await Promise.resolve(fn.apply(base, args)) || base
+
+	return out
+}
+
 let port = process.env.PORT
 
 if (process.argv.length >= 3) {
@@ -13,13 +21,6 @@ if (process.argv.length >= 3) {
 process.on("uncaughtException", (err) => {
 	console.log("Uncaught exception:", err.stack || err)
 })
-
-async function newAsync(fn, ...args) {
-	let base = Object.create(fn.prototype || fn)
-	let out = await Promise.resolve(fn.apply(base, args)) || base
-
-	return out
-}
 
 ;(async function IIFE() {
 	try {

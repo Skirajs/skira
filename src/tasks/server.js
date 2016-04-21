@@ -19,12 +19,12 @@ ServerTask.prototype.prepare = function prepare() {
 }
 
 ServerTask.prototype.execute = async function execute() {
-	let main = this.spare && !this.spare.dead ? this.spare : startServer(this)
+	let main = this.spare && !this.spare.dead ? this.spare : this.startServer(this)
 	this.spare = this.startServer(this)
 
 	main.send({ start: true })
 
-	let exitCode = await new Promise((resolve, reject) => {
+	let exitCode = await new Promise((resolve) => {
 		main.on("exit", resolve)
 	})
 
@@ -35,6 +35,7 @@ ServerTask.prototype.execute = async function execute() {
 
 ServerTask.prototype.startServer = function startServer() {
 	// TODO: read bin from skira-server package.json
+
 	let proc = fork(require.resolve("skira-server/lib/skira-server"), ["0", "127.0.0.1"], {
 		cwd: process.cwd(),
 		env: { DEBUG: "1" },

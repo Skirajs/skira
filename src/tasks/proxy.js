@@ -56,15 +56,15 @@ ProxyTask.prototype.execute = async function execute(skira) {
 	// Get all Skira parts that have an output.
 	Object.keys(skira.project.output || {})
 		// Map both name and value to an array for easy access.
-		.map(n => [n, skira.project.output[n]])
+		.map((n) => [n, skira.project.output[n]])
 		// Only keep absolute URLs as they denote public access.
-		.filter(o => o[1].startsWith("/"))
+		.filter((o) => o[1].startsWith("/"))
 		// Reverse map every URL back to its partname
-		.forEach(o => {
+		.forEach((o) => {
 			this.outputs[o[1]] = skira.project.builds[o[0]]
 		})
 
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		this.proxy.listen(this.port, "127.0.0.1", resolve)
 	})
 
@@ -77,7 +77,7 @@ ProxyTask.prototype.execute = async function execute(skira) {
 }
 
 ProxyTask.prototype.cleanup = async function cleanup() {
-	await new Promise(resolve => {
+	await new Promise((resolve) => {
 		this.proxy.close(resolve)
 	})
 }

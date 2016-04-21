@@ -1,6 +1,5 @@
 const browserify = require("browserify")
 const fs = require("fs")
-const pathTool = require("path")
 const Readable = require("stream").Readable
 
 function makeEntryStream(sitePath) {
