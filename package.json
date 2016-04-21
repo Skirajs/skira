@@ -1,6 +1,6 @@
 {
   "name": "skira",
-  "version": "0.7.2",
+  "version": "0.7.3",
   "description": "Development environment for creating skira sites.",
   "main": "lib/skira",
   "bin": {
@@ -40,7 +40,7 @@
     "js-yaml": "^3.6.0",
     "less": "^2.6.1",
     "portfinder": "^1.0.3",
-    "skira-core": "^0.7.2",
+    "skira-core": "^0.7.3",
     "skira-server": "^0.7.1-1",
     "st": "^1.1.0",
     "yamlify": "^0.1.3"
