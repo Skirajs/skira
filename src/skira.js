@@ -14,8 +14,12 @@ async function Skira(port) {
 	await this.createTasks()
 	this.mapTriggers()
 	this.mapWatchers()
-	await this.autoStart()
 	this.deployWatcher()
+
+	try {
+		await this.autoStart()
+	} catch (err) {
+	}
 }
 
 Skira.prototype.BASE_TASKS = bulk(__dirname + "/tasks", "*.js")
