@@ -43,8 +43,8 @@
     "js-yaml": "^3.6.0",
     "less": "^2.6.1",
     "portfinder": "^1.0.3",
-    "skira-core": "*",
-    "skira-server": "*",
+    "skira-core": "^0.7.5-1",
+    "skira-server": "^0.7.2",
     "st": "^1.1.0",
     "yamlify": "^0.1.3"
   },
