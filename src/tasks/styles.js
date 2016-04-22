@@ -7,6 +7,7 @@ function StylesTask() {
 module.exports = StylesTask
 
 StylesTask.prototype.triggers = {
+	after: "project",
 	watch: "styles",
 }
 

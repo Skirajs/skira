@@ -30,7 +30,7 @@ function ProxyTask() {
 module.exports = ProxyTask
 
 ProxyTask.prototype.triggers = {
-	after: "project",
+	after: !process.env.BUILD && "project",
 }
 
 ProxyTask.prototype.prepare = function prepare(skira) {

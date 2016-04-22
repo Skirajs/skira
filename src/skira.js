@@ -189,6 +189,10 @@ Skira.prototype.autoStart = async function startAuto() {
 }
 
 Skira.prototype.deployWatcher = function deployWatcher() {
+	if (process.env.BUILD) {
+		return
+	}
+
 	let args = Object.keys(this.triggers.watch)
 	let watcher
 

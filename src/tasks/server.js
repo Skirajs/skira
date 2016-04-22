@@ -6,7 +6,7 @@ function ServerTask() {
 module.exports = ServerTask
 
 ServerTask.prototype.triggers = {
-	after: "site",
+	after: !process.env.BUILD && "site",
 	restart: true,
 }
 

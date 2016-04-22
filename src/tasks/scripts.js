@@ -7,17 +7,11 @@ function ScriptsTask() {
 module.exports = ScriptsTask
 
 ScriptsTask.prototype.BABEL_RC = {
-	presets: [
-		"es2015",
-		"stage-0",
-	],
-	plugins: [
-		"transform-runtime",
-	],
-	sourceMaps: "inline",
+	extends: __dirname + "/../../scripts.babelrc.json"
 }
 
 ScriptsTask.prototype.triggers = {
+	after: "project",
 	watch: "scripts",
 }
 
