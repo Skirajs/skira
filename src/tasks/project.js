@@ -28,6 +28,11 @@ ProjectTask.prototype.triggers = {
 
 ProjectTask.prototype.execute = async function execute(skira) {
 	let content = await fs.readFile("project.skira", "utf8")
-	let project = yaml.safeLoad(content)
+	let project = content ? yaml.safeLoad(content) : {}
+
+	if (typeof project != "object") {
+		throw new Error("Invalid project.skira file.")
+	}
+
 	skira.project = merge(this.DEFAULTS, project)
 }
