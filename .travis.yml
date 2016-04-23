@@ -6,3 +6,4 @@ deploy:
   provider: npm
   email: mitchell@de.rijcke.org
   api_key: ${NPM_TOKEN}
+  skip_cleanup: true

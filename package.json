@@ -1,14 +1,14 @@
 {
   "name": "skira",
-  "version": "0.7.6-1",
+  "version": "0.7.7",
   "description": "Development environment for creating skira sites.",
-  "main": "lib/skira",
+  "main": "dist/skira",
   "bin": {
-    "skira": "lib/bin/skira.js"
+    "skira": "dist/bin/skira.js"
   },
   "scripts": {
     "lint": "eslint src && jscs src",
-    "build": "babel -d lib src"
+    "build": "babel -d dist src"
   },
   "repository": {
     "type": "git",
@@ -32,7 +32,6 @@
     "browserify": "^13.0.0",
     "bulk-require": "^0.2.1",
     "bundle-collapser": "^1.2.1",
-    "chokidar": "^1.4.3",
     "debug": "^2.2.0",
     "deepmerge": "^0.2.10",
     "derequire": "^2.0.3",
@@ -43,10 +42,13 @@
     "js-yaml": "^3.6.0",
     "less": "^2.6.1",
     "portfinder": "^1.0.3",
-    "skira-core": "^0.7.5-5",
-    "skira-server": "^0.7.2",
+    "skira-core": "^0.7.8-1",
+    "skira-server": "^0.7.4-1",
     "st": "^1.1.0",
     "yamlify": "^0.1.3"
+  },
+  "optionalDependencies": {
+    "chokidar": "^1.4.3"
   },
   "devDependencies": {
     "babel-cli": "^6.7.5",

@@ -1,4 +1,5 @@
 const fork = require("child_process").fork
+const pathTool = require("path")
 
 function ServerTask() {
 }
@@ -15,6 +16,10 @@ ServerTask.prototype.filter = function filter(project) {
 }
 
 ServerTask.prototype.prepare = function prepare() {
+	let moduleDir = pathTool.dirname(require.resolve("skira-server/package"))
+	let localPath = require("skira-server/package").bin["skira-server"]
+
+	this.serverPath = moduleDir + "/" + localPath
 	this.spare = this.startServer(this)
 }
 
@@ -34,9 +39,7 @@ ServerTask.prototype.execute = async function execute() {
 }
 
 ServerTask.prototype.startServer = function startServer() {
-	// TODO: read bin from skira-server package.json
-
-	let proc = fork(require.resolve("skira-server/lib/skira-server"), ["0", "127.0.0.1"], {
+	let proc = fork(this.serverPath, ["0", "127.0.0.1"], {
 		cwd: process.cwd(),
 		env: { DEBUG: "1" },
 	})

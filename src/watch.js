@@ -1,4 +1,15 @@
-const chokidar = require("chokidar")
+const chokidar = (function getChokidar() {
+	try {
+		return require("chokidar")
+	} catch (err) {
+		if (err.code == "MODULE_NOT_FOUND") {
+			process.exit()
+			return
+		}
+
+		throw err
+	}
+})()
 
 let args = process.argv.slice(2)
 let opts = {

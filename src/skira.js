@@ -19,6 +19,7 @@ async function Skira(port) {
 	try {
 		await this.autoStart()
 	} catch (err) {
+		debug("Autostart failed: %s", err.stack || err)
 	}
 }
 
@@ -209,15 +210,13 @@ Skira.prototype.deployWatcher = function deployWatcher() {
 			}
 		})
 
-		await new Promise((resolve, reject) => {
-			watcher.on("exit", (errorCode) => {
-				if (errorCode) {
-					reject(new Error("Exited with error code " + errorCode))
-				} else {
-					resolve()
-				}
-			})
+		let errorCode = await new Promise((resolve) => {
+			watcher.on("exit", resolve)
 		})
+
+		if (errorCode) {
+			throw new Error("Watcher exited with error code " + errorCode)
+		}
 	}
 
 	setImmediate(async () => {

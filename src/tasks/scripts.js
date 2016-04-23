@@ -7,7 +7,7 @@ function ScriptsTask() {
 module.exports = ScriptsTask
 
 ScriptsTask.prototype.BABEL_RC = {
-	extends: __dirname + "/../../scripts.babelrc.json"
+	extends: __dirname + "/../../scripts.babelrc.json",
 }
 
 ScriptsTask.prototype.triggers = {
